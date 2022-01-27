@@ -6,6 +6,7 @@ import com.sendgrid.helpers.mail.objects.*
 import exceptions.NotFoundApiKeyException
 import exceptions.NotValidEmailException
 import exception.enum.ExceptionMessages.NOT_FOUND_OR_INCORRECT_API_KEY
+import exception.enum.ExceptionMessages.EMAIL_IS_NOT_VALID_OR_EMPTY
 import request.*
 import response.MailResponse
 import utils.EmailValidator.Companion.isEmailValid
@@ -65,19 +66,9 @@ class MailServiceSendgrid: MailService {
     }
 
     private fun convertToEmailSendgrid(emailRequest: EmailRequest): Email {
-        if (!isEmailValid(emailRequest.email)) throw NotValidEmailException("Email from is not valid")
+        if (!isEmailValid(emailRequest.email)) throw NotValidEmailException(EMAIL_IS_NOT_VALID_OR_EMPTY.message)
         return Email(emailRequest.email, emailRequest.name)
     }
-
-/*    private fun validateEmails(emailFrom: EmailRequest?, emailTo: EmailRequest?) {
-        if (!isEmailValid(emailFrom!!.email)) throw NotValidEmailException("Email from is not valid")
-        if (!isEmailValid(emailTo!!.email)) throw NotValidEmailException("Email to is not valid")
-    }
-
-    private fun addEmailsToMail(from: EmailRequest, to: EmailRequest) {
-        emailFrom = Email(from.email, from.name)
-        emailTo = Email(to.email, to.name)
-    }*/
 
     private fun convertToContentSendgrid(contentRequest: ContentRequest): Content {
         return Content(contentRequest.type, contentRequest.value)
