@@ -1,5 +1,4 @@
 import api.ApiKey
-import exceptions.EmptyFieldException
 import exceptions.NotFoundApiKeyException
 import exceptions.NotValidEmailException
 import motherobjects.MailRequestMother
