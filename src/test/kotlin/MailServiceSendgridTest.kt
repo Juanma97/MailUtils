@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.sendgrid.helpers.mail.Mail
 import exceptions.NotFoundApiKeyException
 import exceptions.NotValidEmailException
+import motherobjects.EmailRequestMother
 import motherobjects.MailRequestMother
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,8 +27,8 @@ internal class MailServiceSendgridTest {
     private val API_KEY = ApiKey.API_KEY
     private val sut: MailService = MailServiceSendgrid()
     val mapper = jacksonObjectMapper()
-    private val emailFrom = EmailRequest.Builder().email("from@test.com").name("From").build()
-    private val emailTo = EmailRequest.Builder().email("to@test.com").name("To").build()
+    private val emailFrom = EmailRequestMother.createEmailRequest("from@test.com", "from")
+    private val emailTo = EmailRequestMother.createEmailRequest("to@test.com", "to")
     private val contentRequest = ContentRequest.Builder().value("Content").type("text/html").build()
 
     private val mailRequest = MailRequestMother.createSimpleMailRequestBuilder(emailFrom, emailTo, contentRequest)
@@ -64,8 +65,8 @@ internal class MailServiceSendgridTest {
         assertEquals(mailSended.content[0].type, mailRequest.content!!.type)
         assertEquals(mailSended.subject, mailRequest.subject)
         assertEquals(mailSended.personalization[0].tos.size, 1)
-        assertEquals(mailSended.personalization[0].tos[0].email, mailRequest.to!!.email)
-        assertEquals(mailSended.personalization[0].tos[0].name, mailRequest.to!!.name)
+        //assertEquals(mailSended.personalization[0].tos[0].email, mailRequest.to!!.email)
+        //assertEquals(mailSended.personalization[0].tos[0].name, mailRequest.to!!.name)
     }
 
     @Test
@@ -85,7 +86,7 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_throw_email_error_if_to_email_is_not_valid() {
-        mailRequest.to = EmailRequest.Builder().email("test.com").name("test").build()
+        mailRequest.to = listOf(EmailRequestMother.createEmailRequest("test.com", "test"))
         assertThrows<NotValidEmailException> { sut.createMail(mailRequest.build()) }
     }
 
@@ -163,5 +164,26 @@ internal class MailServiceSendgridTest {
 
         assertEquals(mailSended.getTemplateId(), TEMPLATE_ID)
         assertEquals(mailSended.getPersonalization()[0].dynamicTemplateData.get("username"), "myName")
+    }
+
+    @Test
+    fun should_send_email_with_multiple_recipients() {
+        val emailList: List<EmailRequest> = listOf(
+            EmailRequestMother.createEmailRequest("t0@test.com", "t0"),
+            EmailRequestMother.createEmailRequest("t1@test.com", "t1"),
+            EmailRequestMother.createEmailRequest("t2@test.com", "t2"),
+            EmailRequestMother.createEmailRequest("t3@test.com", "t3")
+        )
+
+        mailRequest.to(emailList)
+
+        sut.createMail(mailRequest.build())
+
+        val mailSended: Mail = mapper.readValue(sut.sendMail(true).messageContent)
+
+        assertEquals(4, mailSended.personalization[0].tos.size)
+        for ((index, value) in mailSended.personalization[0].tos.withIndex()) {
+            assertEquals(value.email, "t${index}@test.com")
+        }
     }
 }

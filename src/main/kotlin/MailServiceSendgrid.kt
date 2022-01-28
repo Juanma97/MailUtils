@@ -46,8 +46,13 @@ class MailServiceSendgrid: MailService {
         // Email básico: from, to, subject, content
         mail = Mail(convertToEmailSendgrid(mailRequest.from),
                     mailRequest.subject,
-                    convertToEmailSendgrid(mailRequest.to),
+                    convertToEmailSendgrid(mailRequest.to[0]), // TODO: Substitute by Add tos??
                     convertToContentSendgrid(mailRequest.content))
+
+        if (mailRequest.to.size > 1) {
+            for (email in mailRequest.to.subList(1, mailRequest.to.size))
+            mail.personalization[0].addTo(convertToEmailSendgrid(email))
+        }
 
         // Email con adjuntos
         if (mailRequest.attachments != null) {

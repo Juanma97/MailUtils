@@ -11,7 +11,7 @@ internal object MailRequestMother {
                                        contentRequest: ContentRequest): MailRequest.Builder {
         return MailRequest.Builder()
             .from(emailFrom)
-            .to(emailTo)
+            .to(listOf(emailTo))
             .subject("Subject")
             .content(contentRequest)
     }

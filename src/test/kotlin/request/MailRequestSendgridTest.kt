@@ -17,7 +17,7 @@ class MailRequestTest {
     @Test
     fun should_throw_if_email_from_not_exists() {
         val mailRequest = MailRequest.Builder()
-            .to(emailTo)
+            .to(listOf(emailTo))
             .subject("Subject")
             .content(contentRequest)
 
@@ -37,7 +37,7 @@ class MailRequestTest {
     @Test
     fun should_throw_if_email_not_have_subject() {
         val mailRequest = MailRequest.Builder()
-            .to(emailTo)
+            .to(listOf(emailTo))
             .from(emailFrom)
             .content(contentRequest)
 
@@ -47,7 +47,7 @@ class MailRequestTest {
     @Test
     fun should_throw_if_email_not_have_content() {
         val mailRequest = MailRequest.Builder()
-            .to(emailTo)
+            .to(listOf(emailTo))
             .from(emailFrom)
             .subject("Subject")
 
