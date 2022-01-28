@@ -1,7 +1,11 @@
 import api.ApiKey
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.sendgrid.helpers.mail.Mail
 import exceptions.NotFoundApiKeyException
 import exceptions.NotValidEmailException
 import motherobjects.MailRequestMother
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -15,15 +19,23 @@ private const val BAD_STRUCTURE_STATUS_CODE = 403
 
 private const val API_KEY_INCORRECT = "API KEY"
 
+private const val TEMPLATE_ID = "d-6409e016383c405383cc9f57b634b977"
+
 internal class MailServiceSendgridTest {
 
     private val API_KEY = ApiKey.API_KEY
     private val sut: MailService = MailServiceSendgrid()
+    val mapper = jacksonObjectMapper()
     private val emailFrom = EmailRequest.Builder().email("from@test.com").name("From").build()
     private val emailTo = EmailRequest.Builder().email("to@test.com").name("To").build()
     private val contentRequest = ContentRequest.Builder().value("Content").type("text/html").build()
 
     private val mailRequest = MailRequestMother.createSimpleMailRequestBuilder(emailFrom, emailTo, contentRequest)
+
+    @BeforeEach
+    fun setup() {
+        sut.initializeService(API_KEY)
+    }
 
     @Test
     fun should_throw_if_api_key_is_empty() {
@@ -40,11 +52,20 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_send_simple_email_test_if_structure_is_correct() {
-        sut.initializeService(API_KEY)
         sut.createMail(mailRequest.build())
         val response = sut.sendMail(true)
 
+        val mailSended: Mail = mapper.readValue(response.messageContent)
+
         assertEquals(OK_STATUS_CODE, response.statusCode)
+        assertEquals(mailSended.from.email, mailRequest.from!!.email)
+        assertEquals(mailSended.from.name, mailRequest.from!!.name)
+        assertEquals(mailSended.content[0].value, mailRequest.content!!.value)
+        assertEquals(mailSended.content[0].type, mailRequest.content!!.type)
+        assertEquals(mailSended.subject, mailRequest.subject)
+        assertEquals(mailSended.personalization[0].tos.size, 1)
+        assertEquals(mailSended.personalization[0].tos[0].email, mailRequest.to!!.email)
+        assertEquals(mailSended.personalization[0].tos[0].name, mailRequest.to!!.name)
     }
 
     @Test
@@ -58,22 +79,18 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_throw_email_error_if_from_email_is_not_valid() {
-        sut.initializeService(API_KEY)
         mailRequest.from = EmailRequest.Builder().email("test.com").name("test").build()
         assertThrows<NotValidEmailException> { sut.createMail(mailRequest.build()) }
     }
 
     @Test
     fun should_throw_email_error_if_to_email_is_not_valid() {
-        sut.initializeService(API_KEY)
         mailRequest.to = EmailRequest.Builder().email("test.com").name("test").build()
         assertThrows<NotValidEmailException> { sut.createMail(mailRequest.build()) }
     }
 
     @Test
     fun should_send_email_with_attachments() {
-        sut.initializeService(API_KEY)
-
         val base64Content = "dGVzdA=="
         val image = AttachmentRequest.Builder().content(base64Content).type("image/png").filename("image.png").build()
         val pdf = AttachmentRequest.Builder().content(base64Content).type("text/html").filename("test.pdf").build()
@@ -82,13 +99,21 @@ internal class MailServiceSendgridTest {
         sut.createMail(mailRequest.build())
         val response = sut.sendMail(true)
 
+        val mailSended: Mail = mapper.readValue(response.messageContent)
+
         assertEquals(OK_STATUS_CODE, response.statusCode)
+        assertEquals(mailSended.attachments.size, 2)
+        assertEquals(mailSended.attachments[0].content, base64Content)
+        assertEquals(mailSended.attachments[1].content, base64Content)
+        assertEquals(mailSended.attachments[0].type, "image/png")
+        assertEquals(mailSended.attachments[1].type, "text/html")
+        assertEquals(mailSended.attachments[0].filename, "image.png")
+        assertEquals(mailSended.attachments[1].filename, "test.pdf")
+
     }
 
     @Test
     fun should_return_bad_structure_code_if_attachment_content_is_not_base64() {
-        sut.initializeService(API_KEY)
-
         val notBase64Content = "test"
         val image = AttachmentRequest.Builder().content(notBase64Content).type("image/png").filename("image.png").build()
         val pdf = AttachmentRequest.Builder().content(notBase64Content).type("text/html").filename("test.pdf").build()
@@ -102,8 +127,6 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_show_error_when_send_email_with_template_id_not_valid() {
-        sut.initializeService(API_KEY)
-
         val templateRequest = TemplateRequest.Builder().templateId("14  ").build()
         mailRequest.templateRequest(templateRequest)
 
@@ -115,30 +138,30 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_send_email_with_template_id_valid() {
-        sut.initializeService(API_KEY)
-
-        val templateRequest = TemplateRequest.Builder().templateId("d-6409e016383c405383cc9f57b634b977").build()
+        val templateRequest = TemplateRequest.Builder().templateId(TEMPLATE_ID).build()
         mailRequest.templateRequest(templateRequest)
 
         sut.createMail(mailRequest.build())
         val response = sut.sendMail(true)
 
+        val mailSended: Mail = mapper.readValue(sut.sendMail(true).messageContent)
+
         assertEquals(OK_STATUS_CODE, response.statusCode)
+        assertEquals(mailSended.getTemplateId(), TEMPLATE_ID)
     }
 
     @Test
     fun should_send_email_with_template_attributes() {
-        sut.initializeService(API_KEY)
-
         val templateAttributes = mapOf(Pair("username", "myName"))
 
-        val templateRequest = TemplateRequest.Builder().templateId("d-6409e016383c405383cc9f57b634b977").templateData(templateAttributes).build()
+        val templateRequest = TemplateRequest.Builder().templateId(TEMPLATE_ID).templateData(templateAttributes).build()
         mailRequest.templateRequest(templateRequest)
 
         sut.createMail(mailRequest.build())
-        val response = sut.sendMail(true)
 
-        assertEquals(OK_STATUS_CODE, response.statusCode)
-        // TODO: Mock verify??
+        val mailSended: Mail = mapper.readValue(sut.sendMail(true).messageContent)
+
+        assertEquals(mailSended.getTemplateId(), TEMPLATE_ID)
+        assertEquals(mailSended.getPersonalization()[0].dynamicTemplateData.get("username"), "myName")
     }
 }

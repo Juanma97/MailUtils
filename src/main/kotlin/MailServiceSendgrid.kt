@@ -35,7 +35,11 @@ class MailServiceSendgrid: MailService {
 
         val response = sendgrid.api(request)
 
-        return MailResponse.Builder().statusCode(response.statusCode).message(response.body).build()
+        return MailResponse.Builder()
+            .statusCode(response.statusCode)
+            .message(response.body)
+            .messageContent(request.body)
+            .build()
     }
 
     override fun createMail(mailRequest: MailRequest) {

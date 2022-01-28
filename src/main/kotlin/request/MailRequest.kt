@@ -3,7 +3,7 @@ package request
 import exceptions.EmptyFieldException
 import exceptions.NotValidEmailException
 
-class MailRequest private constructor(
+data class MailRequest private constructor(
     var from: EmailRequest,
     var to: EmailRequest,
     var subject: String,

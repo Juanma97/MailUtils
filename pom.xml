@@ -14,6 +14,7 @@
         <kotlin.version>1.6.10</kotlin.version>
         <sendgrid.version>4.8.2</sendgrid.version>
         <junit-version>5.8.2</junit-version>
+        <jackson.version>2.9.8</jackson.version>
     </properties>
 
     <dependencies>
@@ -26,6 +27,11 @@
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
             <version>${sendgrid.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
