@@ -17,7 +17,7 @@ private const val ERROR_STATUS_CODE = 400
 private const val UNAUTHORIZED_STATUS_CODE = 401
 private const val BAD_STRUCTURE_STATUS_CODE = 403
 
-private const val API_KEY_INCORRECT = "API KEY"
+private const val API_KEY_INCORRECT = "INCORRECT_API_KEY"
 
 private const val TEMPLATE_ID = "d-6409e016383c405383cc9f57b634b977"
 

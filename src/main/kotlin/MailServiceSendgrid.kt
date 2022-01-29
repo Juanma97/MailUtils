@@ -43,10 +43,9 @@ class MailServiceSendgrid: MailService {
     }
 
     override fun createMail(mailRequest: MailRequest) {
-        // Email básico: from, to, subject, content
         mail = Mail(convertToEmailSendgrid(mailRequest.from),
                     mailRequest.subject,
-                    convertToEmailSendgrid(mailRequest.to[0]), // TODO: Substitute by Add tos??
+                    convertToEmailSendgrid(mailRequest.to[0]),
                     convertToContentSendgrid(mailRequest.content))
 
         if (mailRequest.to.size > 1) {
@@ -54,21 +53,15 @@ class MailServiceSendgrid: MailService {
             mail.personalization[0].addTo(convertToEmailSendgrid(email))
         }
 
-        // Email con adjuntos
         if (mailRequest.attachments != null) {
             addAttachmentsToMail(mailRequest.attachments!!)
         }
 
-        // Email con plantilla
         if (mailRequest.templateRequest != null) {
             addTemplateData(mailRequest.templateRequest)
         }
 
         mail.mailSettings = mailSettings
-
-        // Email con diferentes personalizaciones para cc, bcc
-
-
     }
 
     private fun convertToEmailSendgrid(emailRequest: EmailRequest): Email {
