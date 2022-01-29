@@ -1,4 +1,3 @@
-import api.ApiKey
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.sendgrid.helpers.mail.Mail
@@ -24,7 +23,7 @@ private const val TEMPLATE_ID = "d-6409e016383c405383cc9f57b634b977"
 
 internal class MailServiceSendgridTest {
 
-    private val API_KEY = ApiKey.API_KEY
+    private val API_KEY = System.getenv("API_KEY")
     private val sut: MailService = MailServiceSendgrid()
     val mapper = jacksonObjectMapper()
     private val emailFrom = EmailRequestMother.createEmailRequest("from@test.com", "from")
@@ -65,8 +64,8 @@ internal class MailServiceSendgridTest {
         assertEquals(mailSended.content[0].type, mailRequest.content!!.type)
         assertEquals(mailSended.subject, mailRequest.subject)
         assertEquals(mailSended.personalization[0].tos.size, 1)
-        //assertEquals(mailSended.personalization[0].tos[0].email, mailRequest.to!!.email)
-        //assertEquals(mailSended.personalization[0].tos[0].name, mailRequest.to!!.name)
+        assertEquals(mailSended.personalization[0].tos[0].email, mailRequest.to!![0].email)
+        assertEquals(mailSended.personalization[0].tos[0].name, mailRequest.to!![0].name)
     }
 
     @Test

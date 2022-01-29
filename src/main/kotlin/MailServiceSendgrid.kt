@@ -64,13 +64,10 @@ class MailServiceSendgrid: MailService {
             addTemplateData(mailRequest.templateRequest)
         }
 
-        // Email con ajustes
         mail.mailSettings = mailSettings
 
-        // Email con diferentes personalizaciones
+        // Email con diferentes personalizaciones para cc, bcc
 
-
-        // Email con múltiples destinatarios
 
     }
 
