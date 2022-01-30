@@ -7,7 +7,7 @@ import exception.enum.ExceptionMessages.EMAIL_CONTENT_IS_NULL
 import exceptions.EmptyFieldException
 import exceptions.NotValidEmailException
 
-data class MailRequest private constructor(
+class MailRequest private constructor(
     var from: EmailRequest,
     var to: List<EmailRequest>,
     var subject: String,
