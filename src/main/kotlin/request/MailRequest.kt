@@ -1,5 +1,9 @@
 package request
 
+import exception.enum.ExceptionMessages.EMAIL_FROM_IS_NULL
+import exception.enum.ExceptionMessages.EMAIL_TO_IS_NULL
+import exception.enum.ExceptionMessages.EMAIL_SUBJECT_IS_NULL
+import exception.enum.ExceptionMessages.EMAIL_CONTENT_IS_NULL
 import exceptions.EmptyFieldException
 import exceptions.NotValidEmailException
 
@@ -33,11 +37,11 @@ data class MailRequest private constructor(
         fun cc(cc: EmailRequest) = apply { this.cc = cc }
 
         fun build(): MailRequest {
-            if (from == null) throw NotValidEmailException("Email from is null")
-            if (to.isNullOrEmpty()) throw NotValidEmailException("Email to is null")
+            if (from == null) throw NotValidEmailException(EMAIL_FROM_IS_NULL.message)
+            if (to.isNullOrEmpty()) throw NotValidEmailException(EMAIL_TO_IS_NULL.message)
 
-            if (subject.isNullOrBlank()) throw EmptyFieldException("Subject of mail is null")
-            if (content == null) throw EmptyFieldException("Content of mail is null")
+            if (subject.isNullOrBlank()) throw EmptyFieldException(EMAIL_SUBJECT_IS_NULL.message)
+            if (content == null) throw EmptyFieldException(EMAIL_CONTENT_IS_NULL.message)
 
             return MailRequest(from!!, to!!, subject!!, content!!, bcc, cc, attachments, templateRequest)
         }

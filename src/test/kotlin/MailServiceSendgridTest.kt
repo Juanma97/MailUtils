@@ -25,7 +25,7 @@ internal class MailServiceSendgridTest {
 
     private val API_KEY = System.getenv("API_KEY")
     private val sut: MailService = MailServiceSendgrid()
-    val mapper = jacksonObjectMapper()
+    private val mapper = jacksonObjectMapper()
     private val emailFrom = EmailRequestMother.createEmailRequest("from@test.com", "from")
     private val emailTo = EmailRequestMother.createEmailRequest("to@test.com", "to")
     private val contentRequest = ContentRequest.Builder().value("Content").type("text/html").build()
@@ -39,15 +39,12 @@ internal class MailServiceSendgridTest {
 
     @Test
     fun should_throw_if_api_key_is_empty() {
-        sut.createMail(mailRequest.build())
         assertThrows<NotFoundApiKeyException> { sut.initializeService("") }
     }
 
     @Test
     fun should_not_throw_if_api_key_is_not_empty() {
-        sut.initializeService(API_KEY_INCORRECT)
-        sut.createMail(mailRequest.build())
-        assertDoesNotThrow { sut.sendMail(false) }
+        assertDoesNotThrow { sut.initializeService(API_KEY_INCORRECT) }
     }
 
     @Test

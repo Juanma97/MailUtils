@@ -2,12 +2,20 @@ import com.sendgrid.Method
 import com.sendgrid.Request
 import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.*
+import com.sendgrid.helpers.mail.objects.Attachments
+import com.sendgrid.helpers.mail.objects.MailSettings
+import com.sendgrid.helpers.mail.objects.Email
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Setting
 import exceptions.NotFoundApiKeyException
 import exceptions.NotValidEmailException
 import exception.enum.ExceptionMessages.NOT_FOUND_OR_INCORRECT_API_KEY
 import exception.enum.ExceptionMessages.EMAIL_IS_NOT_VALID_OR_EMPTY
-import request.*
+import request.EmailRequest
+import request.MailRequest
+import request.ContentRequest
+import request.AttachmentRequest
+import request.TemplateRequest
 import response.MailResponse
 import utils.EmailValidator.Companion.isEmailValid
 
