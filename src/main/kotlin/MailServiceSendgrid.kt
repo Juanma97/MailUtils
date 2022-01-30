@@ -61,6 +61,10 @@ class MailServiceSendgrid: MailService {
             addTemplateData(mailRequest.templateRequest)
         }
 
+        if (mailRequest.bcc != null) {
+            mail.personalization[0].addBcc(convertToEmailSendgrid(mailRequest.bcc!!))
+        }
+
         mail.mailSettings = mailSettings
     }
 

@@ -185,4 +185,20 @@ internal class MailServiceSendgridTest {
             assertEquals(value.email, "t${index}@test.com")
         }
     }
+
+    @Test
+    fun should_send_email_with_bcc() {
+        mailRequest.bcc(EmailRequestMother.createEmailRequest("bcc@test.com", "bcc"))
+
+        sut.createMail(mailRequest.build())
+
+        val mailSended: Mail = mapper.readValue(sut.sendMail(true).messageContent)
+
+        assertEquals(1, mailSended.personalization[0].bccs.size)
+        assertEquals("bcc@test.com", mailSended.personalization[0].bccs[0].email)
+        assertEquals("bcc", mailSended.personalization[0].bccs[0].name)
+
+    }
+
+    // Test para cc
 }
