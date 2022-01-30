@@ -200,5 +200,16 @@ internal class MailServiceSendgridTest {
 
     }
 
-    // Test para cc
+    @Test
+    fun should_send_email_with_cc() {
+        mailRequest.cc(EmailRequestMother.createEmailRequest("cc@test.com", "cc"))
+
+        sut.createMail(mailRequest.build())
+
+        val mailSended: Mail = mapper.readValue(sut.sendMail(true).messageContent)
+
+        assertEquals(1, mailSended.personalization[0].ccs.size)
+        assertEquals("cc@test.com", mailSended.personalization[0].ccs[0].email)
+        assertEquals("cc", mailSended.personalization[0].ccs[0].name)
+    }
 }
